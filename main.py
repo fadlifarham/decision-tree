@@ -1,9 +1,15 @@
+#%%
 import pandas as pd
 import numpy as np
 
 from sklearn import tree
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
+
+from sklearn.tree import export_graphviz
+from sklearn.externals.six import StringIO  
+from IPython.display import Image  
+import pydotplus
 
 def decision_tree(data, label):
     le_red = preprocessing.LabelEncoder()
@@ -21,6 +27,8 @@ def decision_tree(data, label):
     # X_train, X_test, y_train, y_test = train_test_split(data, label, test_size=0.3, random_state=1)
     n = data.shape[0]
     error = 0
+
+    # LOO
     for i in range(0, n):
         clf = tree.DecisionTreeClassifier()
 
@@ -38,6 +46,17 @@ def decision_tree(data, label):
 
     print(str(error) + " error dari " + str(n) + " data")
     print("error rate : " + str(error / n * 100) + "%")
+
+    # print(data.columns.values)
+    feature_cols = list(data.columns.values)
+
+    dot_data = StringIO()
+    export_graphviz(clf, out_file=dot_data,  
+                    filled=True, rounded=True,
+                    special_characters=True,feature_names = feature_cols, class_names=['0','1', '2'])
+    graph = pydotplus.graph_from_dot_data(dot_data.getvalue())  
+    graph.write_png('diabetes.png')
+    Image(graph.create_png())
 
 
 def main():
